@@ -29,6 +29,9 @@ from flask import Flask, request, Response, jsonify
 import random
 import re
 
+# For hello world test example
+import redis
+
 
 app = Flask(__name__)
 
@@ -52,6 +55,23 @@ def detection_loop(filename_image):
 
 #initializing the flask app
 app = Flask(__name__)
+
+def get_hit_count():
+    retries = 5
+    while True:
+        try:
+            return cache.incr('hits')
+        except redis.exceptions.ConnectionError as exc:
+            if retries == 0:
+                raise exc
+            retries -= 1
+            time.sleep(0.5)
+
+
+@app.route('/')
+def hello():
+    count = get_hit_count()
+    return 'Hello World! I have been seen {} times.\n'.format(count)
 
 #routing http posts to this method
 @app.route('/api/detect', methods=['POST', 'GET'])
