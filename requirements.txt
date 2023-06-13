@@ -1,6 +1,3 @@
-redis
-PIL
-detect
 Flask
 pybase64
 jsonpickle
@@ -11,4 +8,3 @@ fastapi
 tflite
 tensorflow
 tflite-runtime
-cv2
