@@ -50,6 +50,10 @@ def detection_loop(filename_image):
     return make_response(jsonify(data), 200)
     """
 
+def main():
+    
+
+
 #initializing the flask app
 app = Flask(__name__)
 
