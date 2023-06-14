@@ -17,10 +17,10 @@ from PIL import Image
 from PIL import ImageDraw
 import os
 #import detect
-import tflite_runtime.interpreter as tflite
+#import tflite_runtime.interpreter as tflite
 import platform
 import datetime
-import cv2
+#import cv2
 import time
 import numpy as np
 import io
