@@ -59,7 +59,17 @@ def detection_loop(filenames_images):
   module_handle= "https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1"
   #module_handle= "https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1"
   detector = hub.load(module_handle).signatures['default']
-  
+
+  """ Test later for performance improvment via local saving of the model
+  saved_model_path= "./ts-detectionmodel"
+  if os.path.exists(saved_model_path):
+    print('load model from local file')
+    detector = hub.load(saved_model_path).signatures['default']
+  else:
+    print('load model from hub online')
+    detector = hub.load(module_handle).signatures['default']
+    tf.saved_model.save(detector, saved_model_path)
+  """
   results= []
   print("starting Detector")
   display= False
@@ -87,7 +97,7 @@ def detection_loop(filenames_images):
       detection_class_entities_list.append(result['detection_class_entities'][i].decode('utf-8'))
     result['detection_class_names']=detection_class_names_list
     result['detection_class_entities']=detection_class_entities_list
-    
+
     bounding_boxes.append(result)
     inf_times.append(end_time_inf-start_time_inf)
     upload_times.append(end_time_upload-start_time_upload)
@@ -115,20 +125,9 @@ def detection_loop(filenames_images):
       "avg_upload_time": str(avg_upload_time), 
   }  
   print("finsihed Detector")
-  print("Type of data:{}".format(type(data['bounding_boxes'])))
-  print("Type of data:{}".format(type(data['inf_time'])))
-  print("Type of data:{}".format(type(data['avg_inf_time'])))
-  for list_piece in data['bounding_boxes']:
-    print("Type of Boundingbox parts: {}".format(type(list_piece)))
-    for key in list_piece.keys():
-      print("Type of {} part: {}".format(key,type(list_piece[key])))
 
-  
   result_json=jsonify(data)
-  print("after jsonify")
-
   result_make_response= make_response(result_json, 200)
-  print("After make response")
   return result_make_response
 
 @app.route('/')
