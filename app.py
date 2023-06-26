@@ -77,7 +77,16 @@ def detection_loop(filenames_images):
     result = detector(converted_img)
     end_time_inf = time.time()
     end_time_upload = time.time()
-    result= {key:value.numpy() for key,value in result.items()}
+    result= {key:value.numpy().tolist() for key,value in result.items()}
+
+    detection_class_names_list=[]
+    detection_class_entities_list=[]
+    # decode the byte stings to make them json serilizable
+    for i in range(len(result['detection_class_names'])):
+      detection_class_names_list.append(result['detection_class_names'][i].decode('utf-8'))
+      detection_class_entities_list.append(result['detection_class_entities'][i].decode('utf-8'))
+    result['detection_class_names']=detection_class_names_list
+    result['detection_class_entities']=detection_class_entities_list
     
     bounding_boxes.append(result)
     inf_times.append(end_time_inf-start_time_inf)
@@ -95,25 +104,45 @@ def detection_loop(filenames_images):
   avg_inf_time= sum(inf_times)/len(inf_times)
   avg_upload_time=sum(upload_times)/len(upload_times)
   
+  #convert to list to make serilizable
+
   data = {
       "status": 200,
       "bounding_boxes": bounding_boxes,
       "inf_time": inf_times,
       "avg_inf_time": str(avg_inf_time),
       "upload_time": upload_times,
-      "avg_upload_time": str(avg_upload_time),
-      
+      "avg_upload_time": str(avg_upload_time), 
   }  
-  return make_response(jsonify(data), 200)
+  print("finsihed Detector")
+  print("Type of data:{}".format(type(data['bounding_boxes'])))
+  print("Type of data:{}".format(type(data['inf_time'])))
+  print("Type of data:{}".format(type(data['avg_inf_time'])))
+  for list_piece in data['bounding_boxes']:
+    print("Type of Boundingbox parts: {}".format(type(list_piece)))
+    for key in list_piece.keys():
+      print("Type of {} part: {}".format(key,type(list_piece[key])))
+
+  
+  result_json=jsonify(data)
+  print("after jsonify")
+
+  result_make_response= make_response(result_json, 200)
+  print("After make response")
+  return result_make_response
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
 
+@app.route("/hello", methods=["GET"])
+def say_hello():
+    return jsonify({"msg": "Hello from Flask"})
+
 #routing http posts to this method
 @app.route('/api/detect', methods=['POST', 'GET'])
 def main():
-  data=  request.get_json(force = True)
+  data= request.get_json(force = True)
   #get the array of images from the json body
   imgs = data['images']
 
@@ -122,13 +151,16 @@ def main():
   #new_height=256
   for img in imgs:
       _, filename = tempfile.mkstemp(suffix=".jpg")
+      #pil_image=Image.open(io.BytesIO(base64.b64decode(img)))
       pil_image=Image.open(io.BytesIO(base64.b64decode(img)))
       #pil_image = ImageOps.fit(pil_image, (new_width, new_height), Image.ANTIALIAS)
       pil_image_rgb = pil_image.convert("RGB")
       pil_image_rgb.save(filename, format="JPEG", quality=90)
       filename_image.append(filename)
+  result_detectionloop=detection_loop(filename_image)
+  print("back in main")
   
-  return detection_loop(filename_image)
+  return result_detectionloop
   
 # status_code = Response(status = 200)
 #  return status_code
