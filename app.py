@@ -46,7 +46,7 @@ def display_image(image):
 """
 
 def load_img(path):
-  # turn of messages info and warning level messages
+  #  get image from temp save
   img = tf.io.read_file(path)
   img = tf.image.decode_jpeg(img, channels=3)
   # turn all messegaes back on
@@ -70,38 +70,44 @@ def detection_loop(filenames_images):
     detector = hub.load(module_handle).signatures['default']
     tf.saved_model.save(detector, saved_model_path)
   """
-  results= []
+  #results= []
   print("starting Detector")
-  display= False
+  #display= False
   bounding_boxes=[]
   inf_times=[]
-  upload_times=[]
+  #upload_times=[]
 
   for filename in filenames_images:
     #results.append(run_detector(detector=detector, path=filename))
 
-    start_time_upload = time.time()
+    #start_time_upload = time.time()
     img = load_img(filename)
     converted_img  = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
     start_time_inf = time.time()
+    #start actual detection
     result = detector(converted_img)
     end_time_inf = time.time()
-    end_time_upload = time.time()
+
+    #end_time_upload = time.time()
     result= {key:value.numpy().tolist() for key,value in result.items()}
+
+    """
+    #not needed as we only want bounding boxes and inference time
 
     detection_class_names_list=[]
     detection_class_entities_list=[]
-    # decode the byte stings to make them json serilizable
+    # decode the byte strings to make them json serilizable
     for i in range(len(result['detection_class_names'])):
       detection_class_names_list.append(result['detection_class_names'][i].decode('utf-8'))
       detection_class_entities_list.append(result['detection_class_entities'][i].decode('utf-8'))
     result['detection_class_names']=detection_class_names_list
     result['detection_class_entities']=detection_class_entities_list
+    """
 
-    bounding_boxes.append(result)
+    bounding_boxes.append(result['detection_boxes'])
     inf_times.append(end_time_inf-start_time_inf)
-    upload_times.append(end_time_upload-start_time_upload)
 
+    #upload_times.append(end_time_upload-start_time_upload)
 
     """
     if display:
@@ -111,8 +117,8 @@ def detection_loop(filenames_images):
       display_image(image_with_boxes)
     """
 
-  avg_inf_time= sum(inf_times)/len(inf_times)
-  avg_upload_time=sum(upload_times)/len(upload_times)
+  #avg_inf_time= sum(inf_times)/len(inf_times)
+  #avg_upload_time=sum(upload_times)/len(upload_times)
   
   #convert to list to make serilizable
 
@@ -120,9 +126,9 @@ def detection_loop(filenames_images):
       "status": 200,
       "bounding_boxes": bounding_boxes,
       "inf_time": inf_times,
-      "avg_inf_time": str(avg_inf_time),
-      "upload_time": upload_times,
-      "avg_upload_time": str(avg_upload_time), 
+      #"avg_inf_time": str(avg_inf_time),
+      #"upload_time": upload_times,
+      #"avg_upload_time": str(avg_upload_time), 
   }  
   print("finsihed Detector")
 
@@ -130,6 +136,7 @@ def detection_loop(filenames_images):
   result_make_response= make_response(result_json, 200)
   return result_make_response
 
+#routs for testing if server is running and if it can return json
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -150,10 +157,11 @@ def main():
   #new_height=256
   for img in imgs:
       _, filename = tempfile.mkstemp(suffix=".jpg")
-      #pil_image=Image.open(io.BytesIO(base64.b64decode(img)))
+      #decode image 
       pil_image=Image.open(io.BytesIO(base64.b64decode(img)))
       #pil_image = ImageOps.fit(pil_image, (new_width, new_height), Image.ANTIALIAS)
       pil_image_rgb = pil_image.convert("RGB")
+      #save intermidiatly to make it easy to open later in detection loop
       pil_image_rgb.save(filename, format="JPEG", quality=90)
       filename_image.append(filename)
   result_detectionloop=detection_loop(filename_image)
@@ -168,3 +176,4 @@ def main():
 
 if __name__ == '__main__':
     app.run(debug = True, host = '0.0.0.0')
+    #test loading model here for performance improvment?
