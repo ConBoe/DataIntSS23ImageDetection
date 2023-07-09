@@ -124,21 +124,18 @@ def clientside(test_size ="TINY",test_location = "local",test_batchsize =2, AWS_
 
     # not sure if this is gonna work out... depends if json simplefies short lists with only one element:
     # maybe json function needed
-    if test_batchsize != 1:
-        inf_times=[]
-        boundig_boxes= []
-        for i in range(len(responses)):
-            for j in len(responses[i]['inf_time']):
-                inf_times.append(responses[i]['inf_time'][j])
-                boundig_boxes.append(responses[i]['inf_time'][j])
-    else:
-        inf_times=[]
-        boundig_boxes= []
-        for i in range(len(responses)):
-            for j in len(responses[i]['inf_time']):
-                inf_times.append(responses[i]['inf_time'][j])
-                boundig_boxes.append(responses[i]['inf_time'][j])
 
+    inf_times=[]
+    boundig_boxes= []
+    for tmpresponse in responses:
+        #print(tmpresponse.json())
+        #print("json dumps")
+        #print(json.dumps(tmpresponse.json()))
+        tmpjson= tmpresponse.json()
+
+        for j in range(len(tmpjson['inf_time'])):
+            inf_times.append(tmpjson['inf_time'][j])
+            boundig_boxes.append(tmpjson['bounding_boxes'][j])
 
 
     avg_inf_time=sum(inf_times)/len(inf_times)
@@ -154,42 +151,67 @@ def clientside(test_size ="TINY",test_location = "local",test_batchsize =2, AWS_
                         'bounding_boxes':boundig_boxes}
 
 
-    resultfile_path= "results/test_calcAt_" + test_location+"_BatchS_"+ test_batchsize+ "_Folder_"+ test_size
+    resultfile_path= "results/test_calcAt_" + test_location+"_BatchS_"+ str(test_batchsize) + "_Folder_"+ test_size
 
     resultfile_keydata_path= resultfile_path + "keydata"
 
     with open(resultfile_path, 'w') as fout:
-        json.dump(final_dict_results.json(), fout)
+        json.dump(final_dict_results, fout)
 
     with open(resultfile_keydata_path, 'w') as fout:
-        json.dump(final_dict_keydata.json(), fout)
+        json.dump(final_dict_keydata, fout)
 
 
 
 if __name__ == '__main__':
     
-    test_sizes= ["TINY"
-    #            ,"SMALL"
-    #            ,"MEDIUM"
-    #            ,"BIG"
+    test_sizes= [
+                #"TINY"
+    #            "SMALL"
+    #            "MEDIUM"
+                "BIG"
                 ]
 
     # if AWS remeber to update ip adress with each lab restart!!
 
-    test_locations =[
-                    "local"
-    #                 ,"AWS"
-    ]
+    #test_locations =["local","AWS"]
+    test_locations=[]
+    test_locations.append("local")
+    #test_locations.append("AWS")
+    """
+    #test batchsizes for SMALL
+    test_batchsizes = [
+                    10
+                    ,50
+                    ,100
+                    ,500
+                    ]
+    """ 
+    # test batsizes for MEDIUM
+    """
+    test_batchsizes = [
+                    50
+                    ,100
+                    ,500
+                    ,1000
+                    ]
+
+    """
+    # test sizes for BIG
 
     test_batchsizes = [
-                    1
-                    ,2
-    #                ,10
-    #                ,50
-    #                ,100
-    #                ,200
-    #                ,500
+                    200
+                    ,500
+                    ,1000
+                    ,5000
                     ]
+    test_batchsizes = [
+    #                200
+    #                ,500
+                     1000
+    #                ,5000
+                    ]
+
 
 
     AWS_IP="35.172.150.16"
