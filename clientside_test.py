@@ -166,8 +166,8 @@ def clientside(test_size ="TINY",test_location = "local",test_batchsize =2, AWS_
 if __name__ == '__main__':
     
     test_sizes= [
-                "TINY"
-    #           "SMALL"
+    #            "TINY"
+               "SMALL"
     #            "MEDIUM"
     #            "BIG"
                 ]
