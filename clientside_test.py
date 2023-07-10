@@ -166,58 +166,34 @@ def clientside(test_size ="TINY",test_location = "local",test_batchsize =2, AWS_
 if __name__ == '__main__':
     
     test_sizes= [
-                #"TINY"
-    #            "SMALL"
+                "TINY"
+    #           "SMALL"
     #            "MEDIUM"
-                "BIG"
+    #            "BIG"
                 ]
 
     # if AWS remeber to update ip adress with each lab restart!!
 
     #test_locations =["local","AWS"]
     test_locations=[]
-    test_locations.append("local")
-    #test_locations.append("AWS")
-    """
-    #test batchsizes for SMALL
-    test_batchsizes = [
-                    10
-                    ,50
-                    ,100
-                    ,500
-                    ]
-    """ 
-    # test batsizes for MEDIUM
-    """
-    test_batchsizes = [
-                    50
-                    ,100
-                    ,500
-                    ,1000
-                    ]
-
-    """
-    # test sizes for BIG
-
-    test_batchsizes = [
-                    200
-                    ,500
-                    ,1000
-                    ,5000
-                    ]
-    test_batchsizes = [
-    #                200
-    #                ,500
-                     1000
-    #                ,5000
-                    ]
+    #test_locations.append("local")
+    test_locations.append("AWS")
 
 
-
-    AWS_IP="35.172.150.16"
+    AWS_IP="34.236.170.117"
 
     for test_size in test_sizes:
         for test_location in test_locations:
+            
+            if test_size=="SMALL":
+                test_batchsizes = [10,50,100,500]
+            elif test_size == "MEDIUM":
+                test_batchsizes = [50,100,500,1000]
+            elif test_size == "BIG":
+                test_batchsizes = [200,500,1000]
+            else:
+                test_batchsizes = [100]
+
             for test_batchsize in test_batchsizes:
                 clientside(test_size=test_size,test_location=test_location,test_batchsize=test_batchsize,AWS_IP=AWS_IP)
 

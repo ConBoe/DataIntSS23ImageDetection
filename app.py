@@ -71,7 +71,7 @@ def detection_loop(filenames_images):
     tf.saved_model.save(detector, saved_model_path)
   """
   #results= []
-  print("starting Detector")
+
   #display= False
   bounding_boxes=[]
   inf_times=[]
@@ -130,7 +130,7 @@ def detection_loop(filenames_images):
       #"upload_time": upload_times,
       #"avg_upload_time": str(avg_upload_time), 
   }  
-  print("finsihed Detector")
+
 
   result_json=jsonify(data)
   result_make_response= make_response(result_json, 200)
@@ -165,7 +165,7 @@ def main():
       pil_image_rgb.save(filename, format="JPEG", quality=90)
       filename_image.append(filename)
   result_detectionloop=detection_loop(filename_image)
-  print("back in main")
+
   
   return result_detectionloop
   
