@@ -27,7 +27,7 @@ def clientside(test_size ="TINY",test_location = "local",test_batchsize =2, AWS_
     if test_location=="AWS":
         # aws test with this, needs to be addapted with every lab restart (ip address changes)
         # 35.172.150.16
-        url = 'http://'+ AWS_IP +'/api/detect'
+        url = 'http://'+ AWS_IP +':5000/api/detect'
     else:
         #local Test with this
         url = 'http://localhost:5000/api/detect'
@@ -166,9 +166,9 @@ def clientside(test_size ="TINY",test_location = "local",test_batchsize =2, AWS_
 if __name__ == '__main__':
     
     test_sizes= [
-                "TINY"
+    #            "TINY"
     #           "SMALL"
-    #            "MEDIUM"
+                "MEDIUM"
     #            "BIG"
                 ]
 
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     test_locations.append("AWS")
 
 
-    AWS_IP="34.236.170.117"
+    AWS_IP="44.204.246.80"
 
     for test_size in test_sizes:
         for test_location in test_locations:
